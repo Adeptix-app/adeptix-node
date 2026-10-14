@@ -7,16 +7,11 @@ Full API reference: **https://docs.adeptix.app**
 
 ## Install
 
-```bash
-npm install adeptix
-```
+Install straight from GitHub (npm builds the package on install):
 
-> **Not on the npm registry yet.** Until it is, install straight from GitHub (npm builds it on
-> install via the `prepare` script):
->
-> ```bash
-> npm install github:Adeptix-app/adeptix-node
-> ```
+```bash
+npm install github:Adeptix-app/adeptix-node
+```
 
 Requires Node.js 18 or later (uses the global `fetch`).
 

@@ -7,7 +7,7 @@ Full API reference: **https://docs.adeptix.app**
 
 ## Install
 
-Install straight from GitHub (npm builds the package on install):
+Install straight from GitHub (the built package is included, so nothing runs at install time):
 
 ```bash
 npm install github:Adeptix-app/adeptix-node
@@ -16,7 +16,7 @@ npm install github:Adeptix-app/adeptix-node
 To pin a specific release instead of tracking the latest, add its tag:
 
 ```bash
-npm install github:Adeptix-app/adeptix-node#v0.1.0
+npm install github:Adeptix-app/adeptix-node#v0.1.1
 ```
 
 Requires Node.js 18 or later (uses the global `fetch`).

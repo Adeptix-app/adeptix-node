@@ -82,6 +82,11 @@ export interface WebhookPaymentPaidEvent {
   value_coin: string | null;
   txid_out: string | null;
   paid_at: string | null;
+  /**
+   * true if the payment was created with a test key (ak_test_...). Test and live events go to the
+   * same webhook URL — never fulfil a real order from an event where this is true.
+   */
+  test_mode: boolean;
 }
 
 export interface WebhookCryptoPaymentMatchedEvent {
@@ -92,7 +97,13 @@ export interface WebhookCryptoPaymentMatchedEvent {
   asset_id: string;
   quoted_amount: string;
   amount: string;
+  /** Starts with "sandbox_" for a test-mode match — not a real transaction hash. */
   tx_hash: string;
+  /**
+   * true if the payment was created with a test key (ak_test_...). Test and live events go to the
+   * same webhook URL — never fulfil a real order from an event where this is true.
+   */
+  test_mode: boolean;
 }
 
 export type WebhookEvent = WebhookPaymentPaidEvent | WebhookCryptoPaymentMatchedEvent;

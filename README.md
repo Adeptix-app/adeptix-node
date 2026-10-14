@@ -13,6 +13,12 @@ Install straight from GitHub (npm builds the package on install):
 npm install github:Adeptix-app/adeptix-node
 ```
 
+To pin a specific release instead of tracking the latest, add its tag:
+
+```bash
+npm install github:Adeptix-app/adeptix-node#v0.1.0
+```
+
 Requires Node.js 18 or later (uses the global `fetch`).
 
 ## Quickstart

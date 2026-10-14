@@ -7,6 +7,7 @@ export type AdeptixErrorCode =
   | "internal_error"
   | "asset_unavailable"
   | "no_quote_available"
+  | "too_many_pending_requests"
   | "provider_unavailable"
   | "provider_disabled_for_account"
   | "checkout_provider_error"

@@ -1,6 +1,6 @@
 {
   "name": "adeptix",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Official Node.js / TypeScript SDK for the Adeptix API — crypto payments and merchant payments.",
   "type": "module",
   "main": "./dist/index.js",
@@ -22,6 +22,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "test": "node --test test/**/*.test.ts",
+    "prepare": "npm run build",
     "prepublishOnly": "npm run build"
   },
   "keywords": [

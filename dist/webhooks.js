@@ -24,6 +24,63 @@ export function verifyWebhookSignature(rawBody, signatureHeader, webhookSecret) 
     }
     return expectedBuf.length === providedBuf.length && timingSafeEqual(expectedBuf, providedBuf);
 }
+/** How far (seconds) a v2 signature timestamp may be from your clock. */
+export const DEFAULT_TOLERANCE_SECONDS = 300;
+/**
+ * Verifies the `Adeptix-Signature` header (`t=<unix seconds>,v1=<hex>`): an HMAC-SHA256 over
+ * `"<t>.<raw body>"`, with replay protection. Returns false (never throws) for a missing or malformed
+ * header, a timestamp outside the tolerance window, or a signature that doesn't match any `v1` value.
+ * Call this BEFORE JSON.parse-ing the body.
+ *
+ * This is the recommended scheme; `verifyWebhookSignature` (the `x-adeptix-signature` header) keeps
+ * working unchanged for receivers that haven't moved over.
+ */
+export function verifyWebhookSignatureV2(rawBody, signatureHeader, webhookSecret, options = {}) {
+    if (!signatureHeader)
+        return false;
+    let timestamp = null;
+    const candidates = [];
+    for (const part of signatureHeader.split(",")) {
+        const eq = part.indexOf("=");
+        if (eq < 1)
+            continue;
+        const key = part.slice(0, eq).trim();
+        const value = part.slice(eq + 1).trim();
+        if (key === "t") {
+            if (timestamp !== null || !/^\d{1,12}$/.test(value))
+                return false;
+            timestamp = value;
+        }
+        else if (key === "v1" && /^[0-9a-fA-F]{64}$/.test(value)) {
+            candidates.push(value.toLowerCase());
+        }
+    }
+    if (timestamp === null || candidates.length === 0)
+        return false;
+    const tolerance = options.toleranceSeconds ?? DEFAULT_TOLERANCE_SECONDS;
+    const now = options.now ?? Math.floor(Date.now() / 1000);
+    if (Math.abs(now - Number(timestamp)) > tolerance)
+        return false;
+    const expected = createHmac("sha256", webhookSecret).update(`${timestamp}.`).update(rawBody).digest();
+    let ok = false;
+    for (const candidate of candidates) {
+        const candidateBuf = Buffer.from(candidate, "hex");
+        ok = (candidateBuf.length === expected.length && timingSafeEqual(candidateBuf, expected)) || ok;
+    }
+    return ok;
+}
+/**
+ * Verifies the `Adeptix-Signature` header (see verifyWebhookSignatureV2) and parses the body in one
+ * step. Throws if verification fails or the body isn't valid JSON — never returns an unverified
+ * event. Branch on `event.event` and acknowledge (2xx) types you don't handle; deduplicate on
+ * `event.id`.
+ */
+export function constructEvent(rawBody, signatureHeader, webhookSecret, options = {}) {
+    if (!verifyWebhookSignatureV2(rawBody, signatureHeader, webhookSecret, options)) {
+        throw new Error("Adeptix webhook signature verification failed");
+    }
+    return JSON.parse(rawBody.toString("utf8"));
+}
 /**
  * Verifies the signature and parses the body in one step. Throws if the signature doesn't match
  * or the body isn't valid JSON — never returns an unverified event.

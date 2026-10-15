@@ -1,4 +1,4 @@
 export { AdeptixClient, type AdeptixClientOptions } from "./client.ts";
 export { AdeptixApiError, AdeptixUnexpectedResponseError, type AdeptixErrorCode, type AdeptixErrorBody } from "./errors.ts";
-export { verifyWebhookSignature, parseWebhookEvent } from "./webhooks.ts";
-export type { CryptoChain, CryptoToken, CryptoPaymentStatus, MerchantPaymentStatus, CreateCryptoPaymentRequestParams, CryptoPaymentRequest, CryptoPaymentRequestStatus, CreatePaymentParams, Payment, PaymentStatus, WebhookEvent, WebhookPaymentPaidEvent, WebhookCryptoPaymentMatchedEvent, } from "./types.ts";
+export { verifyWebhookSignature, parseWebhookEvent, verifyWebhookSignatureV2, constructEvent, DEFAULT_TOLERANCE_SECONDS, type VerifyWebhookV2Options, } from "./webhooks.ts";
+export type { CryptoChain, CryptoToken, CryptoPaymentStatus, MerchantPaymentStatus, CreateCryptoPaymentRequestParams, CryptoPaymentRequest, CryptoPaymentRequestStatus, CreatePaymentParams, Payment, PaymentStatus, CheckoutFields, CheckoutFieldsResponse, RequestOptions, Provider, ProviderCountries, CryptoAsset, WebhookEnvelope, WebhookEvent, WebhookPaymentPaidEvent, WebhookPaymentFailedEvent, WebhookCryptoPaymentMatchedEvent, WebhookCryptoPaymentExpiredEvent, } from "./types.ts";

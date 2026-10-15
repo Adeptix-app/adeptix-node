@@ -22,29 +22,47 @@ export class AdeptixClient {
     }
     crypto = {
         /** Reserve a unique, exact-amount crypto deposit. POST — never auto-retried, see maxRetries. */
-        createPaymentRequest: (params) => this.request("POST", "/crypto/payment-requests", {
+        createPaymentRequest: (params, options) => this.request("POST", "/crypto/payment-requests", {
             chain: params.chain,
             token: params.token,
             amount: params.amount,
             order_ref: params.orderRef,
             customer_email: params.customerEmail,
-        }),
+            return_url: params.returnUrl,
+            cancel_url: params.cancelUrl,
+            description: params.description,
+            metadata: params.metadata,
+        }, options),
+        /** The chain/token pairs createPaymentRequest accepts right now. */
+        assets: {
+            list: async () => (await this.request("GET", "/crypto/assets")).data,
+        },
         /** Check the status of a previously created crypto payment request. */
         getPaymentRequest: (paymentRequestId) => this.request("GET", `/crypto/payment-requests/${encodeURIComponent(paymentRequestId)}`),
     };
     payments = {
         /** Open a hosted checkout session with a provider. POST — never auto-retried, see maxRetries. */
-        create: (params) => this.request("POST", "/payment-links", {
+        create: (params, options) => this.request("POST", "/payment-links", {
             amount: params.amount,
             currency: params.currency,
             email: params.email,
             provider: params.provider,
             order_ref: params.orderRef,
-        }),
+            return_url: params.returnUrl,
+            cancel_url: params.cancelUrl,
+            description: params.description,
+            metadata: params.metadata,
+        }, options),
         /** Check the status of a previously created payment. */
         get: (transactionId) => this.request("GET", `/payments/${encodeURIComponent(transactionId)}`),
     };
-    async request(method, path, body) {
+    providers = {
+        /** The providers you can pass as `provider` to payments.create() right now. */
+        list: async () => (await this.request("GET", "/providers")).data,
+        /** One provider; throws AdeptixApiError (code "not_found") if it isn't usable on your account. */
+        get: (providerId) => this.request("GET", `/providers/${encodeURIComponent(providerId)}`),
+    };
+    async request(method, path, body, options) {
         const url = `${this.baseUrl}${path}`;
         const isRetryable = method === "GET";
         let attempt = 0;
@@ -57,6 +75,7 @@ export class AdeptixClient {
                     headers: {
                         Authorization: `Bearer ${this.apiKey}`,
                         ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+                        ...(options?.idempotencyKey ? { "Idempotency-Key": options.idempotencyKey } : {}),
                     },
                     body: body !== undefined ? JSON.stringify(body) : undefined,
                     signal: controller.signal,
